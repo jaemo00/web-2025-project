@@ -7,7 +7,19 @@
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-  <div class="player-container">
+  <!-- 상단 메뉴 -->
+  <header class="top-nav">
+    <div class="nav-left">
+      <a href="index.html" class="logo">🎵 My Player</a>
+    </div>
+    <nav class="nav-right">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="playlist.html" class="nav-link">My Playlist</a>
+      <button id="theme-toggle" class="btn small theme-btn" title="테마 전환">🌙</button>
+    </nav>
+  </header>
+
+  <main class="player-container">
     <div class="player-card" role="region" aria-label="Music Player">
       <div class="cover-wrapper" aria-hidden="true">
         <img id="cover" alt="Album cover" class="cover" />
@@ -34,14 +46,18 @@
         <button id="repeat" class="btn small" title="Repeat Off">🔁</button>
       </div>
 
-      <div class="volume-row">
-        <button id="mute" class="btn small" title="Mute/Unmute">🔊</button>
-        <input id="volume" type="range" min="0" max="1" step="0.01" value="0.9" aria-label="Volume" />
+      <!-- 좋아요 + 볼륨 -->
+      <div class="sub-row">
+        <button id="like" class="btn small" title="내 플레이리스트에 추가">♡</button>
+        <div class="volume-row">
+          <button id="mute" class="btn small" title="Mute/Unmute">🔊</button>
+          <input id="volume" type="range" min="0" max="1" step="0.01" value="0.9" aria-label="Volume" />
+        </div>
       </div>
 
       <ul class="playlist" id="playlist" aria-label="Playlist"></ul>
     </div>
-  </div>
+  </main>
 
   <audio id="audio" preload="metadata"></audio>
   <script src="./script.js"></script>
