@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Playlist - Music Player</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <!-- 상단 메뉴 (메인과 동일) -->
+  <header class="top-nav">
+    <div class="nav-left">
+      <a href="index.html" class="logo">🎵 My Player</a>
+    </div>
+    <nav class="nav-right">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="playlist.html" class="nav-link">My Playlist</a>
+      <button id="theme-toggle" class="btn small theme-btn" title="테마 전환">🌙</button>
+    </nav>
+  </header>
+
+  <main class="page-wrapper">
+    <div class="playlist-page-card">
+      <div class="playlist-header">
+        <h1>내 플레이리스트</h1>
+        <span id="playlist-count" class="playlist-count"></span>
+      </div>
+      <ul id="user-playlist" class="user-playlist-list"></ul>
+      <p id="empty-text" class="empty-text" style="display:none;">
+        아직 좋아요를 누른 곡이 없습니다.<br />
+        <a href="index.html" class="play-link">Home 페이지</a>에서 ♡ 버튼을 눌러 곡을 추가해보세요.
+      </p>
+    </div>
+  </main>
+
+  <script src="./playlist.js"></script>
+</body>
+</html>
