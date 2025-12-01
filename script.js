@@ -23,6 +23,22 @@ const tracks = [
     src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
     cover: "https://images.pexels.com/photos/164661/pexels-photo-164661.jpeg?auto=compress&cs=tinysrgb&w=800",
     durationText: "5:20"
+  },
+    {
+    id: 3,
+    title: "SoundHelix Song 4",
+    artist: "SoundHelix",
+    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+    cover: "https://images.pexels.com/photos/164661/pexels-photo-164661.jpeg?auto=compress&cs=tinysrgb&w=800",
+    durationText: "5:20"
+  },
+    {
+    id: 4,
+    title: "SoundHelix Song 5",
+    artist: "SoundHelix",
+    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
+    cover: "https://images.pexels.com/photos/164661/pexels-photo-164661.jpeg?auto=compress&cs=tinysrgb&w=800",
+    durationText: "5:20"
   }
 ];
 
