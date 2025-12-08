@@ -4,22 +4,39 @@
   <meta charset="UTF-8" />
   <title>My Playlist - Music Player</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./css/style.css" />
 </head>
 <body>
   <!-- 상단 메뉴 (메인과 동일) -->
-  <header class="top-nav">
-    <div class="nav-left">
-      <a href="index.html" class="logo">🎵 My Player</a>
-    </div>
-    <nav class="nav-right">
-      <a href="index.html" class="nav-link">Home</a>
-      <a href="playlist.html" class="nav-link">My Playlist</a>
-      <a href="search.html" class="nav-link">Search</a>
-      <button id="theme-toggle" class="btn small theme-btn" title="테마 전환">🌙</button>
-    </nav>
+<header class="top-nav">
+  <div class="nav-left">
+    <a href="index.html" class="logo">🎵 My Player</a>
+  </div>
 
-  </header>
+<nav class="nav-right">
+  <!-- 🔹 ID 라벨 + 입력창 + 적용 버튼 (왼쪽) -->
+  <span class="nav-id-label">ID</span>
+  <input
+    id="profile-id"
+    type="text"
+    placeholder="예: jm123"
+    class="nav-id-input"
+  />
+  <button id="profile-apply" class="btn small theme-btn nav-id-apply" type="button">
+    적용
+  </button>
+
+  <!-- 🔹 내 플레이리스트 버튼 -->
+  <a href="playlist.html" class="nav-link">내 플레이리스트</a>
+
+  <!-- 🔹 테마 토글 -->
+  <button id="theme-toggle" class="btn small theme-btn" title="테마 전환">
+    🌙
+  </button>
+</nav>
+
+</header>
+
 
   <main class="page-wrapper">
     <div class="playlist-page-card">
@@ -35,6 +52,16 @@
     </div>
   </main>
 
-  <script src="./playlist.js"></script>
+
+  <!-- Firebase SDK (compat 버전: 모듈 안 쓰는 환경에서 쓰기 좋음) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+
+  <script src="./js/firebase.js"></script>
+
+  <script src="./js/playlist.js"></script>
+
+
 </body>
 </html>

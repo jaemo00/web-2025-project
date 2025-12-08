@@ -1,4 +1,4 @@
-// ---- 테마 토글 (다른 페이지와 동일 로직) ----
+// ---- 테마 토글 (index / playlist와 동일) ----
 const themeToggleBtn = document.getElementById("theme-toggle");
 
 function setTheme(theme) {
@@ -23,7 +23,7 @@ if (themeToggleBtn) {
   });
 }
 
-// ---- 노래 검색 로직 ----
+// ---- DOM 요소 ----
 const inputEl = document.getElementById("search-input");
 const btnEl = document.getElementById("search-btn");
 const resultsEl = document.getElementById("search-results");
@@ -32,7 +32,45 @@ const helpEl = document.getElementById("search-help");
 const emptyEl = document.getElementById("search-empty");
 const audioEl = document.getElementById("search-audio");
 
-// 초를 "분:초" 형태로 바꾸는 헬퍼
+// ---- 내 플레이리스트(localStorage) 연동 ----
+function getUserPlaylist() {
+  const raw = localStorage.getItem("myPlaylist");
+  if (!raw) return [];
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+function saveUserPlaylist(list) {
+  localStorage.setItem("myPlaylist", JSON.stringify(list));
+}
+
+function isInPlaylist(id) {
+  const list = getUserPlaylist();
+  return list.some(t => t.id === id);
+}
+
+function updateLikeButton(likeBtn, id) {
+  const liked = isInPlaylist(id);
+  likeBtn.textContent = liked ? "♥" : "♡";
+  likeBtn.title = liked ? "내 플레이리스트에서 제거" : "내 플레이리스트에 추가";
+}
+
+// iTunes API 응답을 내 플레이리스트 아이템 형태로 변환
+function toPlaylistItem(t) {
+  return {
+    id: t.trackId, // iTunes 트랙 ID 사용
+    title: t.trackName,
+    artist: t.artistName,
+    src: t.previewUrl,                      // 30초 미리듣기 URL
+    cover: t.artworkUrl100,                 // 앨범 커버
+    durationText: fmt(t.trackTimeMillis),   // "m:ss" 형식
+  };
+}
+
+// ---- 헬퍼: ms → "분:초" ----
 const fmt = (ms) => {
   if (!Number.isFinite(ms)) return "";
   const s = Math.floor(ms / 1000);
@@ -41,13 +79,14 @@ const fmt = (ms) => {
   return `${m}:${sec}`;
 };
 
-// 결과 리스트 렌더링
+// ---- 검색 결과 렌더링 ----
 function renderResults(tracks) {
   resultsEl.innerHTML = "";
 
   if (!tracks || tracks.length === 0) {
     countEl.textContent = "";
     emptyEl.style.display = "block";
+    emptyEl.textContent = "검색 결과가 없습니다. 다른 키워드로 다시 시도해 주세요.";
     return;
   }
 
@@ -59,47 +98,71 @@ function renderResults(tracks) {
     li.className = "user-playlist-item";
 
     const durationText = fmt(t.trackTimeMillis);
+    const item = toPlaylistItem(t);
 
     li.innerHTML = `
-      <img src="${t.artworkUrl100}" alt="cover" class="user-cover-thumb" />
+      <img src="${item.cover}" alt="cover" class="user-cover-thumb" />
       <div>
-        <div class="user-track-title">${t.trackName}</div>
-        <div class="user-track-artist">${t.artistName}</div>
+        <div class="user-track-title">${item.title}</div>
+        <div class="user-track-artist">${item.artist}</div>
         <div class="playlist-duration" style="font-size:11px; margin-top:2px;">
           ${t.collectionName || ""} ${durationText ? `· ${durationText}` : ""}
         </div>
       </div>
       <div class="user-item-actions">
         <button class="preview-btn">▶ 미리듣기</button>
+        <button class="like-btn">♡</button>
       </div>
     `;
 
-    // 미리듣기 버튼 이벤트
     const previewBtn = li.querySelector(".preview-btn");
+    const likeBtn = li.querySelector(".like-btn");
+
+    // 처음 렌더링할 때 하트 모양 업데이트
+    updateLikeButton(likeBtn, item.id);
+
+    // 미리듣기 버튼
     previewBtn.addEventListener("click", () => {
-      if (!t.previewUrl) {
+      if (!item.src) {
         alert("이 곡은 미리듣기 음원이 제공되지 않습니다.");
         return;
       }
-      audioEl.src = t.previewUrl;
+      audioEl.src = item.src;
       audioEl.play().catch((err) => {
         console.error("미리듣기 재생 실패:", err);
       });
+    });
+
+    // 플레이리스트 추가/삭제 버튼
+    likeBtn.addEventListener("click", () => {
+      const list = getUserPlaylist();
+      const exists = list.some(tr => tr.id === item.id);
+      let newList;
+
+      if (exists) {
+        // 이미 있으면 제거
+        newList = list.filter(tr => tr.id !== item.id);
+      } else {
+        // 없으면 추가
+        newList = [...list, item];
+      }
+
+      saveUserPlaylist(newList);
+      updateLikeButton(likeBtn, item.id);
     });
 
     resultsEl.appendChild(li);
   });
 }
 
-// 검색 실행 함수
+// ---- 검색 실행 함수 ----
 async function searchTracks(keyword) {
   const term = keyword.trim();
   if (!term) return;
 
-  // 기존 재생 중지
+  // 기존 미리듣기 중지
   audioEl.pause();
 
-  // 헬프 문구 잠깐 숨김
   helpEl.style.display = "none";
   emptyEl.style.display = "none";
   countEl.textContent = "검색 중...";
@@ -108,8 +171,8 @@ async function searchTracks(keyword) {
   const params = new URLSearchParams({
     term: term,
     entity: "song",
-    limit: "15",      // 최대 15개만 가져오기
-    country: "US"     // 국가 코드 (US 기준)
+    limit: "15",
+    country: "US",
   });
 
   try {
@@ -127,12 +190,11 @@ async function searchTracks(keyword) {
   }
 }
 
-// 버튼 클릭 시 검색
+// ---- 이벤트: 버튼 클릭 / 엔터 키 ----
 btnEl.addEventListener("click", () => {
   searchTracks(inputEl.value);
 });
 
-// 엔터 키로도 검색
 inputEl.addEventListener("keydown", (e) => {
   if (e.key === "Enter") {
     searchTracks(inputEl.value);

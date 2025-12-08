@@ -4,25 +4,46 @@
   <meta charset="UTF-8" />
   <title>Spotify Style Music Player</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./css/style.css" />
 </head>
 <body>
   <!-- 상단 메뉴 -->
-  <header class="top-nav">
-    <div class="nav-left">
-      <a href="index.html" class="logo">🎵 My Player</a>
-    </div>
-    <nav class="nav-right">
-      <a href="index.html" class="nav-link">Home</a>
-      <a href="playlist.html" class="nav-link">My Playlist</a>
-      <a href="search.html" class="nav-link">Search</a>
-      <button id="theme-toggle" class="btn small theme-btn" title="테마 전환">🌙</button>
-    </nav>
+<header class="top-nav">
+  <div class="nav-left">
+    <a href="index.html" class="logo">🎵 My Player</a>
+  </div>
 
-  </header>
+<nav class="nav-right">
+  <!-- 🔹 ID 라벨 + 입력창 + 적용 버튼 (왼쪽) -->
+  <span class="nav-id-label">ID</span>
+  <input
+    id="profile-id"
+    type="text"
+    placeholder="예: jm123"
+    class="nav-id-input"
+  />
+  <button id="profile-apply" class="btn small theme-btn nav-id-apply" type="button">
+    적용
+  </button>
 
-  <main class="player-container">
+  <!-- 🔹 내 플레이리스트 버튼 -->
+  <a href="playlist.html" class="nav-link">내 플레이리스트</a>
+
+  <!-- 🔹 테마 토글 -->
+  <button id="theme-toggle" class="btn small theme-btn" title="테마 전환">
+    🌙
+  </button>
+</nav>
+
+</header>
+
+
+  <!-- 메인 레이아웃: 왼쪽(검색/추천) / 오른쪽(플레이어) -->
+  <main class="main-layout">
+  <!-- 가운데: 메인 플레이어 -->
+  <section class="player-container">
     <div class="player-card" role="region" aria-label="Music Player">
+      <!-- 기존 플레이어 내용 그대로 -->
       <div class="cover-wrapper" aria-hidden="true">
         <img id="cover" alt="Album cover" class="cover" />
       </div>
@@ -48,7 +69,6 @@
         <button id="repeat" class="btn small" title="Repeat Off">🔁</button>
       </div>
 
-      <!-- 좋아요 + 볼륨 -->
       <div class="sub-row">
         <button id="like" class="btn small" title="내 플레이리스트에 추가">♡</button>
         <div class="volume-row">
@@ -56,12 +76,75 @@
           <input id="volume" type="range" min="0" max="1" step="0.01" value="0.9" aria-label="Volume" />
         </div>
       </div>
+      <!-- 여기 아래에 EQ 영역 추가 -->
+      <div class="eq-row">
+        <div class="eq-group">
+          <label for="bass">Bass</label>
+          <input id="bass" type="range" min="-12" max="12" step="1" value="0" />
+        </div>
+        <div class="eq-group">
+          <label for="treble">Treble</label>
+          <input id="treble" type="range" min="-12" max="12" step="1" value="0" />
+        </div>
+      </div>
 
       <ul class="playlist" id="playlist" aria-label="Playlist"></ul>
     </div>
-  </main>
+  </section>
 
+  <!-- 오른쪽 끝: 검색 + 추천 -->
+  <section class="sidebar">
+    <div class="sidebar-card">
+      <h2 class="sidebar-title">노래 검색</h2>
+      <p class="sidebar-subtext">
+        아티스트나 곡 제목으로 검색해서 미리듣기하고, 마음에 들면 플레이리스트에 추가할 수 있습니다.
+      </p>
+
+      <div class="search-row">
+        <input
+          id="search-input"
+          type="text"
+          placeholder="예: IU, BTS, Coldplay"
+          class="search-input"
+        />
+        <button id="search-btn" class="btn small search-btn">검색</button>
+      </div>
+
+      <p class="empty-text" id="search-help">
+        iTunes 공개 API를 사용하여 30초 미리듣기 음원을 제공합니다.
+      </p>
+
+      <ul id="search-results" class="result-list"></ul>
+      <p class="empty-text" id="search-empty" style="display:none;">
+        검색 결과가 없습니다. 다른 키워드로 다시 시도해 주세요.
+      </p>
+    </div>
+
+    <div class="sidebar-card">
+      <h2 class="sidebar-title">추천 곡</h2>
+      <p class="sidebar-subtext">랜덤 아티스트를 기준으로 iTunes에서 추천 곡을 가져옵니다.</p>
+      <ul id="recommend-list" class="result-list"></ul>
+      <p class="empty-text" id="recommend-empty" style="display:none;">
+        추천 곡을 가져오지 못했습니다. 새로고침 후 다시 시도해 주세요.
+      </p>
+    </div>
+  </section>
+</main>
+
+
+  <!-- 메인 재생용 오디오 -->
   <audio id="audio" preload="metadata"></audio>
-  <script src="./script.js"></script>
+
+  <!-- Firebase SDK (compat 버전: 모듈 안 쓰는 환경에서 쓰기 좋음) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+ 
+  <script src="./js/firebase.js"></script>
+
+
+
+
+  <script src="./js/script.js"></script>
+
 </body>
 </html>

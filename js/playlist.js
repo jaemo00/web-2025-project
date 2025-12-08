@@ -1,4 +1,4 @@
-// ---- 테마 토글 (index와 같은 로직) ----
+// ===== 테마 토글 =====
 const themeToggleBtn = document.getElementById("theme-toggle");
 
 function setTheme(theme) {
@@ -23,11 +23,7 @@ if (themeToggleBtn) {
   });
 }
 
-// ---- 사용자 플레이리스트 로딩 ----
-const userPlaylistEl = document.getElementById("user-playlist");
-const playlistCountEl = document.getElementById("playlist-count");
-const emptyTextEl = document.getElementById("empty-text");
-
+// ===== localStorage =====
 function getUserPlaylist() {
   const raw = localStorage.getItem("myPlaylist");
   if (!raw) return [];
@@ -37,10 +33,17 @@ function getUserPlaylist() {
     return [];
   }
 }
+
 function saveUserPlaylist(list) {
   localStorage.setItem("myPlaylist", JSON.stringify(list));
 }
 
+// ===== DOM =====
+const userPlaylistEl = document.getElementById("user-playlist");
+const playlistCountEl = document.getElementById("playlist-count");
+const emptyTextEl = document.getElementById("empty-text");
+
+// ===== 렌더링 =====
 function renderPlaylist() {
   const list = getUserPlaylist();
   userPlaylistEl.innerHTML = "";
@@ -63,26 +66,28 @@ function renderPlaylist() {
       <div>
         <div class="user-track-title">${track.title}</div>
         <div class="user-track-artist">${track.artist}</div>
+        <div class="playlist-duration" style="font-size:11px; margin-top:2px;">
+          ${track.durationText || ""}
+        </div>
       </div>
       <div class="user-item-actions">
-        <a class="play-link" href="index.html?track=${track.id}">▶ 재생</a>
+        <a class="play-link" href="index.html?id=${track.id}">▶ 플레이어에서 재생</a>
         <button class="remove-btn" data-id="${track.id}">삭제</button>
       </div>
     `;
 
-    userPlaylistEl.appendChild(li);
-  });
+    const removeBtn = li.querySelector(".remove-btn");
 
-  // 삭제 버튼 이벤트 연결
-  userPlaylistEl.querySelectorAll(".remove-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const id = Number(btn.dataset.id);
-      const newList = getUserPlaylist().filter(t => t.id !== id);
+    removeBtn.addEventListener("click", () => {
+      const id = Number(removeBtn.dataset.id);
+      const newList = getUserPlaylist().filter((t) => t.id !== id);
       saveUserPlaylist(newList);
       renderPlaylist();
     });
+
+    userPlaylistEl.appendChild(li);
   });
 }
 
-// 초기 렌더링
+// 초기 실행
 renderPlaylist();
