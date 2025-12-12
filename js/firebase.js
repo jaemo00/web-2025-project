@@ -22,7 +22,7 @@ const db = firebase.firestore();
  */
 function getProfileId() {
   const id = localStorage.getItem("profileId");
-  return (id && id.trim()) || "guest";
+  return (id.trim()) || "guest";
 }
 
 /**
@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const profileBtn = document.getElementById("profile-apply");
 
   if (!profileInput || !profileBtn) {
-    return; // 이 페이지에는 해당 UI가 없을 수도 있음
+    return;
   }
 
   // 현재 프로필 ID를 입력창에 반영
@@ -83,17 +83,48 @@ document.addEventListener("DOMContentLoaded", () => {
   profileInput.value = currentId === "guest" ? "" : currentId;
   profileInput.placeholder = "예: jm123";
 
-  // "적용" 버튼을 누르면 프로필 ID 변경 + 새로고침
-  profileBtn.addEventListener("click", () => {
+  // "적용" 버튼 클릭 이벤트 (수정됨)
+  profileBtn.addEventListener("click", async () => {
     const newId = profileInput.value.trim();
     if (!newId) {
       alert("ID를 입력해주세요. 예: jm123");
       return;
     }
 
+    // 1. 새 ID 저장
     setProfileId(newId);
 
-    // 프로필이 바뀌었으니, 페이지를 새로고침해서 init()을 다시 돌린다
-    window.location.reload();
+    // 2. 서버에서 새 ID의 데이터 가져오기 (비동기)
+    try {
+      const serverList = await loadPlaylistFromServer();
+      
+      // 3. 가져온 데이터를 로컬스토리지에 최신화 (중요!)
+      // 서버에 데이터가 없으면 빈 배열([])로 초기화
+      const newList = serverList || [];
+      localStorage.setItem("myPlaylist", JSON.stringify(newList));
+
+      // 4. 현재 페이지가 어디냐에 따라 화면 갱신 함수 실행
+      
+      // A) playlist.js (목록 페이지)를 보고 있는 경우
+      if (typeof renderPlaylist === "function") {
+        renderPlaylist(); 
+      }
+      
+      // B) script.js (메인 재생 페이지)를 보고 있는 경우
+      if (typeof reloadTracks === "function" && typeof buildPlaylist === "function") {
+        reloadTracks();  // 변수 업데이트
+        buildPlaylist(); // 화면 그리기
+        
+        // 데이터가 없으면 '비어있음' 화면 보여주기 (script.js에 있는 함수)
+        if (typeof showEmptyState === "function" && newList.length === 0) {
+          showEmptyState();
+        }
+      }
+
+
+    } catch (error) {
+      console.error("불러오기 실패:", error);
+      alert("데이터를 불러오는 중 오류가 발생했습니다.");
+    }
   });
 });

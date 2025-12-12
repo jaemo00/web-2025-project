@@ -90,4 +90,22 @@ function renderPlaylist() {
 }
 
 // 초기 실행
-renderPlaylist();
+// 초기 실행 로직 수정
+(async function initPage() {
+  // 1. 일단 화면에 빨리 보여주기 (로컬 데이터)
+  renderPlaylist();
+
+  // 2. 서버에 최신 데이터가 있는지 확인하고 가져오기 (firebase.js 함수 활용)
+  if (typeof loadPlaylistFromServer === "function") {
+    try {
+      const serverList = await loadPlaylistFromServer();
+      if (serverList) {
+        // 서버 데이터가 있으면 로컬스토리지 갱신하고 다시 그리기
+        saveUserPlaylist(serverList);
+        renderPlaylist();
+      }
+    } catch (err) {
+      console.error("서버 동기화 실패:", err);
+    }
+  }
+})();
