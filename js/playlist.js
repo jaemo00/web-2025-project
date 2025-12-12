@@ -35,7 +35,16 @@ function getUserPlaylist() {
 }
 
 function saveUserPlaylist(list) {
+  // 1. 내 브라우저(로컬스토리지)에 저장
   localStorage.setItem("myPlaylist", JSON.stringify(list));
+
+  // 2. 서버(Firebase)에도 저장 
+  if (typeof savePlaylistToServer === "function") {
+    // 비동기 작업이지만, 삭제 반응 속도를 위해 await 없이 백그라운드에서 실행
+    savePlaylistToServer(list).catch((err) => {
+      console.error("서버 동기화 실패:", err);
+    });
+  }
 }
 
 // ===== DOM =====
